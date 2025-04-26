@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "676982411224",
+    "project_id": "safteynet-46fa0",
+    "storage_bucket": "safteynet-46fa0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:676982411224:android:3b1aa6e304df830fd82cad",
+        "android_client_info": {
+          "package_name": "com.example.saftey_net"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDf327n8b-8Ai_4_4S67kiJj6DXDADeZFw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
