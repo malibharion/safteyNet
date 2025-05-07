@@ -1,223 +1,147 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
-import 'package:saftey_net/Conatants/colorsConstants.dart';
-import 'package:saftey_net/Conatants/familyConstants.dart';
-import 'package:saftey_net/Models/model.dart';
-import 'package:url_launcher/url_launcher.dart'; // assuming your Complaint model is here
+import 'package:provider/provider.dart';
+import 'package:saftey_net/Model/communityModel.dart';
+import 'package:saftey_net/StateMangment/communityProvider.dart';
+import 'package:saftey_net/StateMangment/language.dart';
 
-class CommunityScreen extends StatelessWidget {
-  const CommunityScreen({Key? key}) : super(key: key);
-  void _openMap(String location) async {
-    final Uri googleUrl = Uri.parse(
-        'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(location)}');
-    try {
-      if (await launchUrl(googleUrl, mode: LaunchMode.externalApplication)) {
-        // URL launched successfully
-      } else {
-        throw 'Could not launch $googleUrl';
-      }
-    } catch (e) {
-      print('Error launching URL: $e');
-      // Handle the error appropriately (e.g., show a snackbar)
-    }
-  }
+class CommunityScreen extends StatefulWidget {
+  const CommunityScreen({super.key});
 
-  Stream<List<Complaint>> fetchComplaints() {
-    return FirebaseFirestore.instance
-        .collection('complaints')
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        print(data);
-        return Complaint(
-          id: doc.id,
-          type: data['category'] ?? '',
-          description: data['description'] ?? '',
-          location: data['location'] ?? '',
-          date: (data['date'] as Timestamp).toDate(),
-          isUrgent: data['isUrgent'] ?? false,
-          status: data['status'],
-        );
-      }).toList();
-    });
+  @override
+  State<CommunityScreen> createState() => _CommunityScreenState();
+}
+
+class _CommunityScreenState extends State<CommunityScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch complaints here
+    Future.microtask(() =>
+        Provider.of<CommunityProvider>(context, listen: false)
+            .fetchComplaints());
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<CommunityProvider>(context);
+    final localizationProvider = Provider.of<LocalizationProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Community Complaints'),
-        centerTitle: true,
+        title: localizationProvider.locale.languageCode == 'en'
+            ? Text("Community Complaints")
+            : Text("کمیونٹی شکایات"),
+        backgroundColor: Colors.blue,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: StreamBuilder<List<Complaint>>(
-          stream: fetchComplaints(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Something went wrong!'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text('No complaints found.'));
-            } else {
-              final complaints = snapshot.data!;
-              return ListView.separated(
-                itemCount: complaints.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  final complaint = complaints[index];
-                  return _buildComplaintCard(complaint);
-                },
-              );
-            }
-          },
+      body: provider.isLoading
+          ? Center(child: CircularProgressIndicator())
+          : provider.complaints.isEmpty
+              ? Center(
+                  child: Text(
+                    localizationProvider.locale.languageCode == 'en'
+                        ? "No complaints found."
+                        : "کوئی شکایات نہیں ملیں",
+                  ),
+                )
+              : ListView.builder(
+                  padding: EdgeInsets.all(12),
+                  itemCount: provider.complaints.length,
+                  itemBuilder: (context, index) {
+                    final complaint = provider.complaints[index];
+                    return ComplaintCard(complaint: complaint);
+                  },
+                ),
+    );
+  }
+}
+
+class ComplaintCard extends StatelessWidget {
+  final ComplaintModel complaint;
+
+  const ComplaintCard({super.key, required this.complaint});
+
+  Color getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'resolved':
+        return Colors.green;
+      case 'rejected':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (complaint.imageUrl.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  complaint.imageUrl,
+                  height: 180,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  complaint.type,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: getStatusColor(complaint.status),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    complaint.status.toUpperCase(),
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(complaint.description),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                _infoChip(Icons.location_on, complaint.location),
+                _infoChip(Icons.warning, complaint.severityOrOption),
+                _infoChip(Icons.map, complaint.areaType),
+                _infoChip(Icons.schedule,
+                    '${complaint.timestamp.toLocal()}'.split('.')[0]),
+              ],
+            )
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildComplaintCard(Complaint complaint) {
-    return GestureDetector(
-      onTap: () {
-        _openMap(complaint.location);
-      },
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Complaint Type (Top Section)
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: complaint.isUrgent
-                              ? Colors.red.withOpacity(0.2)
-                              : AppColors.primary.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          complaint.type,
-                          style: TextStyle(
-                            fontFamily: AppFonts.robotoRegular,
-                            fontSize: 14.sp,
-                            color: complaint.isUrgent
-                                ? Colors.red
-                                : AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      if (complaint.isUrgent) ...[
-                        const SizedBox(width: 8),
-                        const Icon(Icons.warning, color: Colors.red, size: 18),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Description
-                  Text(
-                    complaint.description,
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontFamily: AppFonts.robotoLight,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Location & Date
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Location Row
-                        Row(
-                          children: [
-                            const Icon(Icons.location_on,
-                                size: 16, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                complaint.location,
-                                style: TextStyle(
-                                  fontFamily: AppFonts.robotoLight,
-                                  fontSize: 13,
-                                  color: Colors.grey[600],
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-
-                        // Date Row
-                        Row(
-                          children: [
-                            const Icon(Icons.calendar_today,
-                                size: 16, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                DateFormat('MMM dd, yyyy - hh:mm a')
-                                    .format(complaint.date),
-                                style: TextStyle(
-                                  fontFamily: AppFonts.robotoLight,
-                                  fontSize: 13,
-                                  color: Colors.grey[600],
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Status Badge (Top Right)
-            Positioned(
-              top: 8,
-              right: 8,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  complaint.status ?? 'Pending', // default if null
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 12.sp,
-                    fontFamily: AppFonts.robotoRegular,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+  Widget _infoChip(IconData icon, String label) {
+    return Chip(
+      avatar: Icon(icon, size: 16, color: Colors.blue),
+      label: Text(label),
+      backgroundColor: Colors.grey.shade100,
     );
   }
 }

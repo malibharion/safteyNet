@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:saftey_net/Conatants/familyConstants.dart';
 import 'package:saftey_net/CustomsWidgets/backGroundImageContainer.dart';
 import 'package:saftey_net/CustomsWidgets/customElevatedButton.dart';
+import 'package:saftey_net/StateMangment/language.dart';
 import 'package:saftey_net/views/LoginSignUpScreen/Authtorities/authoritiesloginScreen.dart';
 import 'package:saftey_net/views/LoginSignUpScreen/user/userLoginScreen.dart';
 
@@ -16,24 +18,29 @@ class SelectUserScreen extends StatefulWidget {
 class _SelectUserScreenState extends State<SelectUserScreen> {
   @override
   Widget build(BuildContext context) {
+    final localizationProvider = Provider.of<LocalizationProvider>(context);
     return SafeArea(
       child: Center(
         child: BackgroundImageWithContainer(
-          backgroundImagePath: 'assets/images/image 105 (5).png',
           child: Column(
             children: [
               Center(
                   child: Image(
-                image: AssetImage('assets/images/fotor-2025041510056 1.png'),
+                width: 200.w,
+                image: AssetImage(
+                    'assets/images/ChatGPT_Image_May_3__2025__11_27_41_AM-removebg-preview 1.png'),
               )),
               SizedBox(height: MediaQuery.of(context).size.height * 0.02),
               Text(
-                'Saftey Net',
+                localizationProvider.locale.languageCode == 'en'
+                    ? 'Safety Net'
+                    : 'سیفٹی نیٹ',
                 style: TextStyle(
-                    fontFamily: AppFonts.robotoRegular,
-                    color: Colors.white,
-                    fontSize: 39.sp,
-                    fontWeight: FontWeight.bold),
+                  fontFamily: AppFonts.robotoRegular,
+                  color: Colors.white,
+                  fontSize: 39.sp,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.20,
@@ -41,7 +48,9 @@ class _SelectUserScreenState extends State<SelectUserScreen> {
               Column(
                 children: [
                   CustomElevatedButton(
-                    text: 'User',
+                    text: localizationProvider.locale.languageCode == 'en'
+                        ? 'User'
+                        : 'صارف',
                     icon: Icons.arrow_forward,
                     buttonWidth: MediaQuery.of(context).size.width * 0.8,
                     onPressed: () {
@@ -55,7 +64,9 @@ class _SelectUserScreenState extends State<SelectUserScreen> {
                     height: MediaQuery.of(context).size.height * 0.05,
                   ),
                   CustomElevatedButton(
-                    text: 'Authorities',
+                    text: localizationProvider.locale.languageCode == 'en'
+                        ? 'Authorities'
+                        : 'اختیارات',
                     icon: Icons.arrow_forward,
                     buttonWidth: MediaQuery.of(context).size.width * 0.8,
                     onPressed: () {

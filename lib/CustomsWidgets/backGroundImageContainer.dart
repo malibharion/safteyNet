@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class BackgroundImageWithContainer extends StatelessWidget {
   final Widget child;
-  final String? backgroundImagePath;
+
   final Color containerColor;
   final EdgeInsetsGeometry? padding;
   final double? maxWidth; // Optional max width
@@ -11,7 +11,6 @@ class BackgroundImageWithContainer extends StatelessWidget {
   const BackgroundImageWithContainer({
     super.key,
     required this.child,
-    this.backgroundImagePath,
     this.containerColor = const Color(0xA6000000),
     this.padding,
     this.maxWidth,
@@ -21,16 +20,11 @@ class BackgroundImageWithContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          if (backgroundImagePath != null)
-            Image.asset(
-              backgroundImagePath!,
-              fit: BoxFit.cover,
-            )
-          else
-            Container(color: Colors.grey),
+          Container(color: Colors.white),
           Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(
@@ -42,7 +36,7 @@ class BackgroundImageWithContainer extends StatelessWidget {
                   padding: padding ?? const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: containerColor,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(13),
                   ),
                   child: child,
                 ),

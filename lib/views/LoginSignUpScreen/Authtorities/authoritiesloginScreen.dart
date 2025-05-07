@@ -6,8 +6,10 @@ import 'package:saftey_net/Conatants/familyConstants.dart';
 import 'package:saftey_net/CustomsWidgets/backGroundImageContainer.dart';
 import 'package:saftey_net/CustomsWidgets/customElevatedButton.dart';
 import 'package:saftey_net/CustomsWidgets/customTextFeild.dart';
+import 'package:saftey_net/StateMangment/language.dart';
 import 'package:saftey_net/StateMangment/signUp.dart';
 import 'package:saftey_net/views/AuthoritesViews/authoriritiesHomeScreen.dart';
+import 'package:saftey_net/views/AuthoritesViews/authoritiesdashBoardScreen.dart';
 
 class AuthorititesLoginScreen extends StatefulWidget {
   const AuthorititesLoginScreen({super.key});
@@ -32,11 +34,12 @@ class _AuthorititesLoginScreenState extends State<AuthorititesLoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final localizationProvider = Provider.of<LocalizationProvider>(context);
+
     return SafeArea(
       child: Scaffold(
         body: Center(
           child: BackgroundImageWithContainer(
-            backgroundImagePath: 'assets/images/image 105 (5).png',
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Form(
@@ -45,11 +48,13 @@ class _AuthorititesLoginScreenState extends State<AuthorititesLoginScreen> {
                   children: [
                     Center(
                       child: Image.asset(
-                          'assets/images/fotor-2025041510056 1.png'),
+                          'assets/images/ChatGPT_Image_May_3__2025__11_27_41_AM-removebg-preview 1.png'),
                     ),
                     SizedBox(height: 20.h),
                     Text(
-                      'Login',
+                      localizationProvider.locale.languageCode == 'en'
+                          ? 'Login'
+                          : 'لاگ ان کریں',
                       style: TextStyle(
                         fontFamily: AppFonts.robotoRegular,
                         color: Colors.white,
@@ -57,22 +62,31 @@ class _AuthorititesLoginScreenState extends State<AuthorititesLoginScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+
                     SizedBox(height: 40.h),
 
                     // Email Field
                     CustomTextField(
                       controller: _emailController,
                       prefixIcon: Icons.email_outlined,
-                      hintText: 'Email',
+                      hintText: localizationProvider.locale.languageCode == 'en'
+                          ? 'Email'
+                          : 'ای میل',
                       obscureText: false,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return localizationProvider.locale.languageCode ==
+                                  'en'
+                              ? 'Please enter your email'
+                              : 'براہ کرم اپنا ای میل درج کریں';
                         }
                         if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
                             .hasMatch(value)) {
-                          return 'Enter a valid email';
+                          return localizationProvider.locale.languageCode ==
+                                  'en'
+                              ? 'Enter a valid email'
+                              : 'درست ای میل درج کریں';
                         }
                         return null;
                       },
@@ -83,11 +97,16 @@ class _AuthorititesLoginScreenState extends State<AuthorititesLoginScreen> {
                     CustomTextField(
                       controller: _passwordController,
                       prefixIcon: Icons.lock_outline,
-                      hintText: 'Password',
+                      hintText: localizationProvider.locale.languageCode == 'en'
+                          ? 'Password'
+                          : 'پاسورڈ',
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
+                          return localizationProvider.locale.languageCode ==
+                                  'en'
+                              ? 'Please enter your password'
+                              : 'براہ کرم اپنا پاسورڈ درج کریں';
                         }
                         return null;
                       },
@@ -123,7 +142,7 @@ class _AuthorititesLoginScreenState extends State<AuthorititesLoginScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            AuthoritiesScreen(),
+                                            AdminDashboardScreen(),
                                       ),
                                     );
                                   },
@@ -135,7 +154,13 @@ class _AuthorititesLoginScreenState extends State<AuthorititesLoginScreen> {
                                 );
                               }
                             },
-                      text: authProvider.isLoading ? 'Logging in...' : 'Login',
+                      text: authProvider.isLoading
+                          ? localizationProvider.locale.languageCode == 'en'
+                              ? 'Logging in...'
+                              : 'لاگ ان ہو رہا ہے...'
+                          : localizationProvider.locale.languageCode == 'en'
+                              ? 'Login'
+                              : 'لاگ ان کریں',
                       icon: Icons.login,
                     ),
                     SizedBox(height: 16.h),

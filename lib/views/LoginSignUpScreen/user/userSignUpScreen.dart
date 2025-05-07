@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:saftey_net/StateMangment/language.dart';
 import 'package:saftey_net/StateMangment/signUp.dart';
 
 import 'package:saftey_net/Conatants/colorsConstants.dart';
@@ -34,12 +35,12 @@ class _UserSignUpScreenState extends State<UserSignUpScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final localizationProvider = Provider.of<LocalizationProvider>(context);
 
     return SafeArea(
       child: Scaffold(
         body: Center(
           child: BackgroundImageWithContainer(
-            backgroundImagePath: 'assets/images/image 105 (5).png',
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Form(
@@ -48,11 +49,13 @@ class _UserSignUpScreenState extends State<UserSignUpScreen> {
                   children: [
                     Center(
                       child: Image.asset(
-                          'assets/images/fotor-2025041510056 1.png'),
+                          'assets/images/ChatGPT_Image_May_3__2025__11_27_41_AM-removebg-preview 1.png'),
                     ),
                     SizedBox(height: 20.h),
                     Text(
-                      'Sign Up',
+                      localizationProvider.locale.languageCode == 'en'
+                          ? 'Sign Up'
+                          : 'سائن اپ کریں',
                       style: TextStyle(
                         fontFamily: AppFonts.robotoRegular,
                         color: Colors.white,
@@ -60,22 +63,31 @@ class _UserSignUpScreenState extends State<UserSignUpScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+
                     SizedBox(height: 20.h),
 
                     // Email Field
                     CustomTextField(
                       controller: _emailController,
                       prefixIcon: Icons.email_outlined,
-                      hintText: 'Email',
+                      hintText: localizationProvider.locale.languageCode == 'en'
+                          ? 'Email'
+                          : 'ای میل',
                       obscureText: false,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return localizationProvider.locale.languageCode ==
+                                  'en'
+                              ? 'Please enter your email'
+                              : 'براہ کرم اپنا ای میل درج کریں';
                         }
                         if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
                             .hasMatch(value)) {
-                          return 'Enter a valid email';
+                          return localizationProvider.locale.languageCode ==
+                                  'en'
+                              ? 'Enter a valid email'
+                              : 'ایک درست ای میل درج کریں';
                         }
                         return null;
                       },
@@ -86,12 +98,17 @@ class _UserSignUpScreenState extends State<UserSignUpScreen> {
                     CustomTextField(
                       controller: _phoneController,
                       prefixIcon: Icons.phone,
-                      hintText: 'Mobile Number',
+                      hintText: localizationProvider.locale.languageCode == 'en'
+                          ? 'Mobile Number'
+                          : 'موبائل نمبر',
                       obscureText: false,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your phone number';
+                          return localizationProvider.locale.languageCode ==
+                                  'en'
+                              ? 'Please enter your phone number'
+                              : 'براہ کرم اپنا فون نمبر درج کریں';
                         }
                         return null;
                       },
@@ -102,14 +119,22 @@ class _UserSignUpScreenState extends State<UserSignUpScreen> {
                     CustomTextField(
                       controller: _passwordController,
                       prefixIcon: Icons.lock_outline,
-                      hintText: 'Password',
+                      hintText: localizationProvider.locale.languageCode == 'en'
+                          ? 'Password'
+                          : 'پاسورڈ',
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter a password';
+                          return localizationProvider.locale.languageCode ==
+                                  'en'
+                              ? 'Please enter a password'
+                              : 'براہ کرم پاسورڈ درج کریں';
                         }
                         if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
+                          return localizationProvider.locale.languageCode ==
+                                  'en'
+                              ? 'Password must be at least 6 characters'
+                              : 'پاسورڈ کم از کم 6 حروف پر مشتمل ہونا چاہیے';
                         }
                         return null;
                       },
@@ -158,8 +183,12 @@ class _UserSignUpScreenState extends State<UserSignUpScreen> {
                               }
                             },
                       text: authProvider.isLoading
-                          ? 'Creating Account...'
-                          : 'Sign Up',
+                          ? localizationProvider.locale.languageCode == 'en'
+                              ? 'Creating Account...'
+                              : 'اکاؤنٹ بنارہا ہے...'
+                          : localizationProvider.locale.languageCode == 'en'
+                              ? 'Sign Up'
+                              : 'سائن اپ کریں',
                       icon: Icons.login,
                     ),
                     SizedBox(height: 16.h),
@@ -172,7 +201,9 @@ class _UserSignUpScreenState extends State<UserSignUpScreen> {
                         Flexible(
                           // Wrap first Text with Flexible
                           child: Text(
-                            'Already have an account?',
+                            localizationProvider.locale.languageCode == 'en'
+                                ? 'Already have an account?'
+                                : 'کیا آپ کا اکاؤنٹ پہلے سے موجود ہے؟',
                             style: TextStyle(
                               fontFamily: AppFonts.robotoLight,
                               color: Colors.white,
@@ -190,7 +221,9 @@ class _UserSignUpScreenState extends State<UserSignUpScreen> {
                             );
                           },
                           child: Text(
-                            'Login',
+                            localizationProvider.locale.languageCode == 'en'
+                                ? 'Login'
+                                : 'لاگ ان کریں',
                             style: TextStyle(
                               fontFamily: AppFonts.robotoRegular,
                               color: AppColors.primary,

@@ -38,12 +38,21 @@ dependencies:
   geolocator: ^10.0.0
   geocoding: ^2.1.1
   firebase_core: ^3.13.0
+  firebase_storage: ^12.4.5
+  image_picker: ^1.0.7
+  path: ^1.9.0
+
+  
   url_launcher: ^6.2.1
+  
   cloud_firestore: ^5.6.6
-  intl: ^0.20.2
+ 
+  
   firebase_auth: ^5.5.2
   
   provider: ^6.1.4
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
